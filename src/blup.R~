@@ -1,0 +1,4 @@
+
+"wrap"<-function(x, y, my.fun, ...) sapply(seq(along=x), function(i) my.fun(x[i], y[i], ...))
+
+"wrap"<-function(x,y,fn,...) sapply(seq(along=x),function(i) fn(x[i],y[i], ...))
