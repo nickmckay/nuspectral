@@ -1,4 +1,4 @@
-#'@export
+#' 
 "nuwaveletcoeff" <-
 function(X, Y, t, o, wgt=cubicwgt, wgtrad=1)
 {   so <- 0.05*o

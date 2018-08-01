@@ -16,7 +16,7 @@ nureal(X, Y, omegamax, ncoeff, noctave)
   \item{Y}{ \code{Y} is the sequence of corresponding ordinate values. }
   \item{omegamax}{ \code{omegamax} is the top circular frequency for which the spectrum is to be computed. }
   \item{ncoeff}{ \code{ncoeff} is the number of coefficients evenly distributed per octave to be calculated. }
-  \item{noctave}{ \code{noctave} is the number of octaves to be calculated. } }
+  \item{noctave}{ \code{noctave} is the number of octaves to be calculated. } 
 }
 \value{An array of spectral coefficients in complex representation.}
 \references{ http://basic-research.zkm.de }
@@ -25,8 +25,7 @@ nureal(X, Y, omegamax, ncoeff, noctave)
 
 \seealso{\code{\link{nureal}}}
 
-\examples{data(deut); nureal(deut[[2]],deut[[4]],1e-4,16,4);}
-
+\examples{data(deut); nureal(deut[[2]],deut[[4]],1e-4,16,4);
 
 ## The function is currently defined as
 function(X, Y, xlength, omegamax, ncoeff, noctave)

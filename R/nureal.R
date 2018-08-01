@@ -1,5 +1,5 @@
-#'@export
-"nureal" <-
+#' @useDynLib nuspectral nureal
+nureal <-
 function(X, Y, omegamax, ncoeff, noctave)
  .C("nureal",
     as.double(X),

@@ -24,7 +24,6 @@ fastnurealwavelet(X, Y, omegamax, ncoeff, noctave, tmin, tmax, tsubdiv, sigma=0.
   \item{sigma}   { \code{sigma} specifies the length of the wavelet support, i.e. the time/frequency tradeoff; the default value of 0.1
                    means that 10 periods of exp(i t) fit into the wavelet window, smaller values increase the window size }
   }
-}
 \value{An array of spectral coefficients in complex representation.}
 \references{ http://basic-research.zkm.de }
 \author{ Adolf Mathias <dolfi@zkm.de> }
@@ -32,7 +31,7 @@ fastnurealwavelet(X, Y, omegamax, ncoeff, noctave, tmin, tmax, tsubdiv, sigma=0.
 
 \seealso{\code{\link{nureal}}, \code{\link{fastnureal}}, \code{\link{nuwaveletcoeff}}}
 
-\examples{data(deut); fastnurealwavelet(deut[[2]],deut[[4]],1e-4,16,4, 0, 420000, 200);}
+\examples{data(deut); fastnurealwavelet(deut[[2]],deut[[4]],1e-4,16,4, 0, 420000, 200);
 
 ## The function is currently defined as
 function(X, Y, omegamax, ncoeff, noctave, tmin, tmax, tsubdiv, sigma=0.1)
@@ -49,4 +48,5 @@ function(X, Y, omegamax, ncoeff, noctave, tmin, tmax, tsubdiv, sigma=0.1)
     as.double(sigma),
     as.double(omegamax),
     rp = complex(noctave*ncoeff*tsubdiv))$rp
+    }
 \keyword{ts}
