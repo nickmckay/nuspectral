@@ -1,7 +1,7 @@
-#'@export
+#' @useDynLib nuspectral "fastnurealwavelet"
 "fastnurealwavelet" <-
 function(X, Y, omegamax, ncoeff, noctave, tmin, tmax, tsubdiv, sigma=0.1)
- .C("fastnu",
+ .C("fastnurealwavelet",
     as.double(X),
     as.double(Y),
     as.integer(min(length(X),length(Y))),

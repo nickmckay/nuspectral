@@ -36,7 +36,8 @@ typedef struct
 {   Real x, t;
 } XTElem;
 
-inline double sqr(double x) 
+/* Added static keyword to compile properly MJG 03/14/18 */
+static inline double sqr(double x) 
 {   return x*x;   }
 
 /* PNUM has to match the definition of EXP_IOT_SERIES! */

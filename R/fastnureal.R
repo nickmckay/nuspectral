@@ -1,4 +1,4 @@
-#'@export
+#' @useDynLib nuspectral "fastnureal"
 "fastnureal" <-
 function(X, Y, omegamax, ncoeff, noctave)
  .C("fastnureal",

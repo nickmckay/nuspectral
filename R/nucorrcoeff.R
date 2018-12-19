@@ -1,4 +1,4 @@
-#'@export
+#'
 "nucorrcoeff" <-
 function(X1, Y1, X2, Y2, t, o, wgt=cubicwgt, wgtrad=1)
 {   so <- 0.05*o

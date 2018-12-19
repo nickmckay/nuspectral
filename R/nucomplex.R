@@ -1,4 +1,4 @@
-#'@export
+#' @useDynLib nuspectral nucomplex
 "nucomplex" <-
 function(X, Y, omegamax, ncoeff, noctave)
  .C("nucomplex",

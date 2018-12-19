@@ -1,4 +1,4 @@
-#'@export
+#'
 "nurealcoeff" <-
 function(X,Y,o)
 {   if(o!=1)

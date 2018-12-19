@@ -1,4 +1,4 @@
-#'@export
+#' 
 "nuwaveletcoeff" <-
 function(X, Y, t, o, wgt=cubicwgt, wgtrad=1, sigma = 0.05)
 {   so <- sigma*o

@@ -1,8 +1,11 @@
 Package: nuspectral
-Title: Spectral Transform of Irregularly Sampled Time Series 
+Type: Package
+Title: Spectral Transform of Irregularly Sampled Time Series
 Version: 1.0
-Author: Adolf Mathias
+Date: 2018-03-14
+Author: Adolf Mathias, Matthew Graham
 Description: This package provides several algorithms for the spectral transform of irregularly sampled time series, further a weighted transform that provides a wavelet transform of the input data. For comparison, the Lomb and the Lomb normalized periodogram are added. A C implementation of a divide-and-conquer scheme for the spectral transform of irregularly sampled real data yielding a logarithmically scaled spectrum is also provided.
-Maintainer: <dolfi@zkm.de>
+Maintainer: <mjg@caltech.edu>
 License: LGPL
-RoxygenNote: 6.0.1
+NeedsCompilation: yes
+Packaged: 2018-03-15 03:03:03 UTC; mjg
