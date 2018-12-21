@@ -16,7 +16,6 @@ freq_axis = function(t){
 
 #' @export
 #' @family spectra
-#' @import nuspectral
 #' @title Scalogram
 #' @description Wrapper for the R function `nuwaveletcoeff`
 #' @param time vector of time points
@@ -50,7 +49,7 @@ nuwavelet = function(time, vals, freqs, taus, wgt=cubicwgt, wgtrad=1, sigma=0.05
   for(i in 1:nt){
     t_shifted = time-taus[i]
     for(j in 1:nf){
-      coeff = nuspectral::nuwaveletcoeff(time, vals, taus[i], omega[j], wgtrad=wgtrad, sigma=sigma)
+      coeff = nuwaveletcoeff(time, vals, taus[i], omega[j], wgtrad=wgtrad, sigma=sigma)
       sclgrm[i, j] = abs(coeff)**2
       weight = wgt(t_shifted*so[j])
       s = sum(weight)
@@ -103,7 +102,7 @@ nuwavelet_psd = function(time, vals, freqs=NA, taus=NA, wgtrad=1, sigma=0.05){
   sum_eff = colSums(Neff_diff, na.rm = TRUE)
   psd  <- sum_power / sum_eff
   
-  out = list(Power = psd[-1] , Frequency = freqs[-1])
+  out = list(Power, Frequency = freqs)
   return(out)
 }
 
