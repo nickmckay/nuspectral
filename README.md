@@ -1,7 +1,7 @@
 # nuspectral
 This repository contains a compiled version of the *nuspectral* package for the R language, originally written by Adolf Mathias. The method is wavelet-based and closely related to the Weighted Wavelet Z-transform by Foster [1996]. 
 
-Credit for compiling the C portion of the code goes to Matthew Graham <mjg@caltech.edu>. Wrappers have been developed for spectral analysis by Feng Zhu and Julien Emile-Geay <julieneg@usc.edu>.
+Credit for compiling the C portion of the code goes to Matthew Graham (<mjg@caltech.edu>). Wrappers have been developed for spectral analysis by Feng Zhu and Julien Emile-Geay (<julieneg@usc.edu>).
 
 **References**
 
