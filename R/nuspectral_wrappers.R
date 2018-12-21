@@ -102,7 +102,7 @@ nuwavelet_psd = function(time, vals, freqs=NA, taus=NA, wgtrad=1, sigma=0.05){
   sum_eff = colSums(Neff_diff, na.rm = TRUE)
   psd  <- sum_power / sum_eff
   
-  out = list(Power, Frequency = freqs)
+  out = list(Power = psd, Frequency = freqs)
   return(out)
 }
 
