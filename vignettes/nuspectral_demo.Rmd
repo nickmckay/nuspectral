@@ -1,0 +1,33 @@
+---
+title: "nuspectral demo"
+output: html_nuspectral
+---
+
+
+Let us reproduce Fig 8 from Mathias et al [2004]
+```{r}
+library(nuspectral)
+load(co2.rda)
+t = co2[[2]]
+Y = co2[[4]]
+omegamax <- 0.0015 
+ncoeff <- 100
+noctave <- 20
+tmin <- 0 
+tmax <- 420000 
+tsubdiv <- 10000
+
+W = nuspectral::fastnurealwavelet(t,Y,omegamax,ncoeff,noctave,tmin,tmax,tsubdiv) # output is octave*ncoeff*tsubdiv
+
+```
+Now what? We need to unwrapped this very large array (305 Mb!!) into a usable form. 
+
+
+
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+

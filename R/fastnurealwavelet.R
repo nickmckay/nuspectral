@@ -14,3 +14,5 @@ function(X, Y, omegamax, ncoeff, noctave, tmin, tmax, tsubdiv, sigma=0.1)
     as.double(sigma),
     as.double(omegamax),
     rp = complex(noctave*ncoeff*tsubdiv))$rp
+
+# to test: fastnurealwavelet(co2[[2]],co2[[4]],0.0015,100,20,0,420000,10000) should reproduce Fig 8 from the paper
