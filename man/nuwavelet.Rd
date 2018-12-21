@@ -38,6 +38,6 @@ Matthias et al, (2004), Algorithms for Spectral Analysis of Irregularly Sampled 
 Foster, G. (1996), Wavelets for period analysis of unevenly sampled time series, Astron. Jour., 112, 1709, doi:10.1086/118137.
 }
 \seealso{
-Other spectra: \code{\link{freq_axis}},
-  \code{\link{nupsd}}, \code{\link{nuwavelet_psd}}
+Other spectra: \code{\link{freq_axis}}
 }
+\concept{spectra}

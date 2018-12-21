@@ -48,9 +48,10 @@ nuwavelet = function(time, vals, freqs, taus, wgt=cubicwgt, wgtrad=1, sigma=0.05
 
   for(i in 1:nt){
     t_shifted = time-taus[i]
+    coeff = nuwaveletcoeff(time, vals, taus[i], omega, wgtrad=wgtrad, sigma=sigma)
     for(j in 1:nf){
-      coeff = nuwaveletcoeff(time, vals, taus[i], omega[j], wgtrad=wgtrad, sigma=sigma)
-      sclgrm[i, j] = abs(coeff)**2
+      #coeff = nuwaveletcoeff(time, vals, taus[i], omega[j], wgtrad=wgtrad, sigma=sigma)
+      sclgrm[i, j] = abs(coeff[j])**2
       weight = wgt(t_shifted*so[j])
       s = sum(weight)
       Neffs[i, j] = s^2 / sum(weight^2)
@@ -64,7 +65,7 @@ nuwavelet = function(time, vals, freqs, taus, wgt=cubicwgt, wgtrad=1, sigma=0.05
 #' @export
 #' @family spectra
 #' @title nuwavelet_psd
-#' @description Power spectral density derived from a `nuspectral` scalogram
+#' @description Power spectral density derived from a `nuspectral` scalogram (nuwavelet)
 #' @param time vector of time points
 #' @param vals vector of values vals = y(time)
 #' @param freqs vector of analysis frequencies
