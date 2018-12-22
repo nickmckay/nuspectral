@@ -46,15 +46,18 @@ nuwavelet = function(time, vals, freqs, taus, wgt=cubicwgt, wgtrad=1, sigma=0.05
   sclgrm = matrix(nrow = nt, ncol = nf)
   Neffs  = matrix(nrow = nt, ncol = nf)
 
+  pb = txtProgressBar(min=1,max = nt,style = 3)
   for(i in 1:nt){
     t_shifted = time-taus[i]
-    coeff = nuwaveletcoeff(time, vals, taus[i], omega, wgtrad=wgtrad, sigma=sigma)
     for(j in 1:nf){
-      #coeff = nuwaveletcoeff(time, vals, taus[i], omega[j], wgtrad=wgtrad, sigma=sigma)
-      sclgrm[i, j] = abs(coeff[j])**2
+      coeff = nuwaveletcoeff(time, vals, taus[i], omega[j], wgtrad=wgtrad, sigma=sigma)
+      sclgrm[i, j] = abs(coeff)**2
       weight = wgt(t_shifted*so[j])
       s = sum(weight)
       Neffs[i, j] = s^2 / sum(weight^2)
+    }
+    if(i%%round(nt/10)==0){
+      setTxtProgressBar(pb,i)
     }
   }
   # allocate output
