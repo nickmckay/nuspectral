@@ -10,6 +10,13 @@ For the background, we use the method of Kirchner, J. W. (2005), Aliasing in 1/f
 ```{r}
 library(ggplot2)
 library(ggthemes)
+library(nuspectral)
+library(astrochron)
+library(scales)
+library(tidyverse)
+library(reshape2) # for melt
+#library(directlabels) 
+
 dt = 2
 time = seq(dt,3000,by=dt)
 nt = as.numeric(length(time))
@@ -40,6 +47,29 @@ yt = ys + yp
 # plot
 ggplot() + geom_line(aes(x=time,y=yt),colour="orange") + ggtitle("Colored Milankovitch noise") + ylab("d18O") + scale_x_continuous(breaks=seq(0,5)) + xlab("Age (ka)") + theme_hc(base_size = 12, base_family = "sans", style = "darkunica", bgcolor = NULL)
 ```
+Now let's use the nuspectral, wavelet-based method to estimate the spectrum. 
+```{r}
+#tau = seq(min(time),max(time),length = max(nt %/% 2,5))
+#spec.wwz = nuspectral:::nuwavelet_psd(time,yt,sigma=0.01,taus = tau)
+load('spec.wwz.Rdata')   # load this to speed things up; TOGGLE for real example
+period_range =  c(10, 1000) 
+freq = spec.wwz$Frequency
+pwr = spec.wwz$Power
+f.low = 1/period_range[2]
+f.high = 1/period_range[1]
+freq_range = (freq>= f.low & freq<=f.high)
+df.wwz = data.frame(spec.wwz)
+
+# plotting parameters
+m <- floor(log10(min(df.wwz$Power[freq_range]))) 
+M <- ceiling(log10(max(df.wwz$Power[freq_range]))) 
+period_ticks= c(10, 20, 50, 100, 200, 500, 1000)  
+
+```
+
+You may want to fiddle with  *tau*. Making this vector sparser will speed things up, though high-frequency variability will be undersampled. It thus requires some careful consideration. Here we choose to skip every other point, as a 4ka interval stil allows to resolve Milankovitch frequencies while not wasting time on high-frequency features, which are pure noise in this demo. 
+Now let us plot the spectrum and test the significance of peaks in a couple of ways.  First, let's define a couple of auxiliary functions for plotting.
+
 ```{r}
 # Define auxiliary functions for plotting
 reverselog10_trans <- function(){
@@ -62,50 +92,77 @@ return(p)
 }
 ```
 
+We first establish significance against an AR(1) model, as is common in climate science. 
 
 ```{r}
-library(geoChronR)
-library(nuspectral)
-library(astrochron)
-library(scales)
-# WWZ method
-tau = seq(min(time),max(time),length = max(nt %/% 2,5))
+# test for significance against AR(1), re-using Meyers, Paleoceanography, 2012
+ar.out <-  ar(x = yt, aic = F, order.max = 1) # fit AR(1) model
+rho = ar.out$ar  #extract lag-1 autocorrelation
+So = mean(pwr)
+Nyq <- 1/(2 * dt) # Nyquist frequency
 
-#spec.wwz = nuspectral:::nuwavelet_psd(time,yt,sigma=0.01,taus = tau)
-load('spec.wwz.Rdata')   # load this to speed things up; TOGGLE for real example
-period_range =  c(10, 1000) 
-freq = spec.wwz$Frequency
-f.low = 1/period_range[2]
-f.high = 1/period_range[1]
-freq_range = (freq>= f.low & freq<=f.high)
+RawAR = So * (1 - (rho^2))/(1 - (2 * rho * cos(pi * freq/Nyq)) + (rho^2)) # spectral density
+dofAR =  2 # normally (2 * ntap) ... should be modified for WWZ where dof is function of frequency 
+chiRawAR <- (pwr/RawAR) * dofAR
+chiCLRawAR <- pchisq(chiRawAR, df = dofAR)
+AR1_90 <- RawAR * qchisq(0.9, df = dofAR)/dofAR
+AR1_95 <- RawAR * qchisq(0.95, df = dofAR)/dofAR
+AR1_99 <- RawAR * qchisq(0.99, df = dofAR)/dofAR
 
-
-# add power-law fit
-specIn = data.frame(cbind(spec.wwz$Frequency, spec.wwz$Power))
-resFit = astrochron::pwrLawFit(specIn, dof = 2, flow = f.low, fhigh = f.high, output = 1, genplot = F)
-pwrLawFreq = resFit[, 1]
-pwrLawLine = resFit[, 4]
-CL90  = resFit[, 5]
-CL95  = resFit[, 6]
-CL99  = resFit[, 7]
-# estimate range
-m <- floor(log10(min(spec.wwz$Power[freq_range]))) 
-M <- ceiling(log10(max(spec.wwz$Power[freq_range]))) 
-
-#geom_line(aes(x=1/f,y=spec.mtmPL$PowerLaw_fit),colour="blue")
-  
-period_ticks= c(10, 20, 50, 100, 200, 500, 1000)
+ar.df = data.frame(cbind(freq,AR1_90,AR1_95,AR1_99))    # bundle into a dataframe
+# rename columns to be less silly
+names(ar.df)[2] <- "90% CL"
+names(ar.df)[3] <- "95% CL"
+names(ar.df)[4] <- "99% CL"
+ar.df = melt(ar.df,id = 1)  # reshape so plotting is easier
+#
 p <- ggplot() + geom_line(aes(x=1/spec.wwz$Frequency,y=spec.wwz$Power),colour="orange") + 
   theme_hc(base_size = 12, base_family = "sans", style = "darkunica", bgcolor = NULL) + 
+  theme(axis.ticks.x = element_line(color = "gray")) + scale_y_log10(limits = c(10^m,10^M)) + 
   scale_x_continuous(breaks=period_ticks, minor_breaks = NULL, trans=reverselog10_trans(), limits = rev(period_range)) +
-  xlab("Period (kyr)") + ylab("Normalized Power") + ggtitle("Colored Milankovitch noise, WWZ, power-law null") +  
-  scale_y_log10(limits = c(10^m,10^M)) + 
-  geom_line(aes(x=1/pwrLawFreq,y=CL90),colour="white",linetype = 1) +
-  geom_line(aes(x=1/pwrLawFreq,y=CL95),colour="white",linetype = 2) +
-  geom_line(aes(x=1/pwrLawFreq,y=CL99),colour="white",linetype = 3) +
-plotSpectraAnnotate(p)
+  xlab("Period (kyr)") + ylab("Normalized Power") + ggtitle("Colored Milankovitch noise, WWZ, AR(1) null") +  
+  geom_line(data=ar.df,aes(x=1/freq,y=value,linetype=variable),colour="white")
+  
+p <- plotSpectraAnnotate(p)
+show(p)
 ```
 
-We see four peaks at the frequencies where we put them (nothing short of reassuring) and a background with a 1/f slope (again, reassuring as that's what we put in). Note that the default value of sigma (0.05) would give an overly smooth spectrum. 
-Also, you may want to play with the tau vector. Making it sparser will speed things up, though high-frequency variability will be undersampled. It thus requires some careful consideration. Here we choose to skip every other point, as a 4ka interval stil allows to resolve Milankovitch frequencies while not wasting time on high-frequency features, which are pure noise in this demo. 
+We see four peaks at the frequencies where we put them (nothing short of reassuring) and a background with a 1/f slope. The peaks all breach the confidence limits, though you can see that the peak at 100 kyr is barely poking above the background. We'll explain this below.
+
+Note that the default value of sigma (0.05) would give an overly smooth spectrum, which is why we picked sigma=0.01. You may want to try this with different values of sigma, basically optimizing the bias-variance tradeoff by hand. There is no free lunch.  
+
+Now let's use a more appropriate null hypothesis: a power law, which is what we put in. Again, we make shameless re-use of Stephen Meyer's excellent astrochron package. 
+
+```{r}
+#  power-law fit
+plaw.fit = astrochron::pwrLawFit(df.wwz, dof = 2, flow = f.low, fhigh = f.high, output = 1, genplot = F)
+
+pl.df <- data.frame(plaw.fit[,union(1,c(5:7))]) # extract confidence limits and pull into dataframe
+# rename columns to be less silly
+names(pl.df)[2] <- "90% CL"
+names(pl.df)[3] <- "95% CL"
+names(pl.df)[4] <- "99% CL"
+pl.df = melt(pl.df,id = 1)  # reshape so plotting is easier
+
+# now plot it
+p <- ggplot() + geom_line(aes(x=1/spec.wwz$Frequency,y=spec.wwz$Power),colour="orange") + 
+  theme_hc(base_size = 12, base_family = "sans", style = "darkunica", bgcolor = NULL) + 
+  theme(axis.ticks.x = element_line(color = "gray")) + scale_y_log10(limits = c(10^m,10^M)) + 
+  scale_x_continuous(breaks=period_ticks, minor_breaks = NULL, trans=reverselog10_trans(), limits = rev(period_range)) +
+  xlab("Period (kyr)") + ylab("Normalized Power") + ggtitle("Colored Milankovitch noise, WWZ, power-law null") +  
+  geom_line(data=pwr.law,aes(x=1/Frequency,y=value,linetype=variable),colour="white")
+  
+p <- plotSpectraAnnotate(p)
+show(p)
+```
+Now all peaks poke 1 order of magnitude above the confidence limits, which makes more sense (that is, after all, how we designed this artificial example). Why was this not the case with the AR(1) null? That is because the spectrum of the AR(1) model is scaled to the mean spectral power, which in our case is dominated by the very lowest frequencies.  This unduly "upped the ante" for this significance test. 
+
+Two points of note:
+1) Though some might say that a power-law test is more stringent at low-frequencies, we see that it was not the case here, because of the So scaling. 
+
+2) We see, once again, that coming up with an appropriate null is at least as important as carrying out the test properly. 
+
+
+Optional: label confidence limits at the end of lines: #https://stackoverflow.com/questions/29357612/plot-labels-at-ends-of-lines
+
 
