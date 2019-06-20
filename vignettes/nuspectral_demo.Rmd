@@ -150,7 +150,7 @@ p <- ggplot() + geom_line(aes(x=1/spec.wwz$Frequency,y=spec.wwz$Power),colour="o
   theme(axis.ticks.x = element_line(color = "gray")) + scale_y_log10(limits = c(10^m,10^M)) + 
   scale_x_continuous(breaks=period_ticks, minor_breaks = NULL, trans=reverselog10_trans(), limits = rev(period_range)) +
   xlab("Period (kyr)") + ylab("Normalized Power") + ggtitle("Colored Milankovitch noise, WWZ, power-law null") +  
-  geom_line(data=pwr.law,aes(x=1/Frequency,y=value,linetype=variable),colour="white")
+  geom_line(data=pl.df,aes(x=1/Frequency,y=value,linetype=variable),colour="white")
   
 p <- plotSpectraAnnotate(p)
 show(p)
