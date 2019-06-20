@@ -1,21 +1,19 @@
 ---
 title: "nuspectral demo"
-author: Julien Emile-Geay
-date: December 21, 2018
-output: github_document
+output:
+  html_document:
+    df_print: paged
 ---
 
-First we generate synthetic colored noise with Milankovitch frequencies.
-For the background, we use the method of Kirchner, J. W. (2005), Aliasing in 1/fα noise spectra: Origins, consequences, and remedies, Physical Review E, 71(6), 066,110–, doi:10.1103/PhysRevE.71.066110.
-```{r}
+Let us test **nuspectral** with synthetic colored noise with Milankovitch frequencies.
+To generate it, we use the method of [Kirchner (2005)](https://journals.aps.org/pre/abstract/10.1103/PhysRevE.71.066110). 
+```{r load packages and generate synthetic data, message=FALSE, warning=FALSE}
 library(ggplot2)
 library(ggthemes)
-library(nuspectral)
+#library(nuspectral)
 library(astrochron)
 library(scales)
-library(tidyverse)
 library(reshape2) # for melt
-#library(directlabels) 
 
 dt = 2
 time = seq(dt,3000,by=dt)
@@ -25,7 +23,7 @@ y = matrix(nrow = nt, ncol = nf)
 alpha = 1 # noise color
 fs = 1/dt
 f0 = fs/nt
-theta = 2*pi*runif(nf)
+theta = 2*pi*runif(nf) # random phases
 
 for(k in 1:nf){
   y[,k] = (f0*k)^(-alpha/2)*sin(2*k*f0*time + theta[k])
@@ -41,36 +39,37 @@ for(i in 1:np){
 }
 
 yp = rowSums(yp)  # add up
-
 yt = ys + yp
 
 # plot
 ggplot() + geom_line(aes(x=time,y=yt),colour="orange") + ggtitle("Colored Milankovitch noise") + ylab("d18O") + scale_x_continuous(breaks=seq(0,5)) + xlab("Age (ka)") + theme_hc(base_size = 12, base_family = "sans", style = "darkunica", bgcolor = NULL)
 ```
-Now let's use the nuspectral, wavelet-based method to estimate the spectrum. 
-```{r}
+
+Now let's use the nuspectral, wavelet-based method to estimate the spectrum. To save time, we load a pre-computed version, but the first two lines show how one would evaluate this spectrum using the nuspectral package. 
+
+```{r spectral estimation}
 #tau = seq(min(time),max(time),length = max(nt %/% 2,5))
 #spec.wwz = nuspectral:::nuwavelet_psd(time,yt,sigma=0.01,taus = tau)
 load('spec.wwz.Rdata')   # load this to speed things up; TOGGLE for real example
-period_range =  c(10, 1000) 
+period_range =  c(10, 1000)  # define range for estimation of spectral exponent
 freq = spec.wwz$Frequency
 pwr = spec.wwz$Power
 f.low = 1/period_range[2]
 f.high = 1/period_range[1]
 freq_range = (freq>= f.low & freq<=f.high)
-df.wwz = data.frame(spec.wwz)
+df.wwz = data.frame(cbind(freq, pwr))
+
 
 # plotting parameters
-m <- floor(log10(min(df.wwz$Power[freq_range]))) 
-M <- ceiling(log10(max(df.wwz$Power[freq_range]))) 
+m <- floor(log10(min(pwr[freq_range]))) 
+M <- ceiling(log10(max(pwr[freq_range]))) 
 period_ticks= c(10, 20, 50, 100, 200, 500, 1000)  
-
 ```
 
 You may want to fiddle with  *tau*. Making this vector sparser will speed things up, though high-frequency variability will be undersampled. It thus requires some careful consideration. Here we choose to skip every other point, as a 4ka interval stil allows to resolve Milankovitch frequencies while not wasting time on high-frequency features, which are pure noise in this demo. 
 Now let us plot the spectrum and test the significance of peaks in a couple of ways.  First, let's define a couple of auxiliary functions for plotting.
 
-```{r}
+```{r auxiliary functions}
 # Define auxiliary functions for plotting
 reverselog10_trans <- function(){
   trans <- function(x) -log(x, 10)
@@ -92,11 +91,41 @@ return(p)
 }
 ```
 
-We first establish significance against an AR(1) model, as is common in climate science. 
+Since the process was defined as fractal (1/f) noise + some harmonics, a natural choice for the detection of harmonics would be to test against a power-law spectrum; in general, the spectral exponent (here, alpha = 1) is not known, so one would have to estimate it from the data. For this, we can re-use Stephen Meyer's excellent [astrochron](https://www.rdocumentation.org/packages/astrochron) package. 
 
-```{r}
-# test for significance against AR(1), re-using Meyers, Paleoceanography, 2012
-ar.out <-  ar(x = yt, aic = F, order.max = 1) # fit AR(1) model
+```{r test again power law, message=FALSE, warning=FALSE}
+plaw.fit = astrochron::pwrLawFit(df.wwz, dof = 2, flow = f.low, fhigh = f.high, output = 1, genplot = F)
+
+pl.df <- data.frame(plaw.fit[,union(1,c(5:7))]) # extract confidence limits and pull into dataframe
+# rename columns to be less silly
+names(pl.df)[2] <- "90% CL"
+names(pl.df)[3] <- "95% CL"
+names(pl.df)[4] <- "99% CL"
+pl.df = melt(pl.df,id = 1)  # reshape so plotting is easier
+```
+From the pwrLawFit output we see that it estimates a slope of $\beta = +0.9$ ($\alpha$, in our notation), fairly close to the theoretical slope.
+
+```{r plot the spectrum, message=FALSE, warning=FALSE}
+# now plot it
+p <- ggplot() + geom_line(aes(x=1/spec.wwz$Frequency,y=spec.wwz$Power),colour="orange") + 
+  theme_hc(base_size = 12, base_family = "sans", style = "darkunica", bgcolor = NULL) + 
+  theme(axis.ticks.x = element_line(color = "gray")) + scale_y_log10(limits = c(10^m,10^M)) + 
+  scale_x_continuous(breaks=period_ticks, minor_breaks = NULL, trans=reverselog10_trans(), limits = rev(period_range)) +
+  xlab("Period (kyr)") + ylab("Normalized Power") + ggtitle("Colored Milankovitch noise, WWZ, power-law null") +  
+  geom_line(data=pl.df,aes(x=1/Frequency,y=value,linetype=variable),colour="white")
+  
+p <- plotSpectraAnnotate(p)
+show(p)
+```
+
+We see four peaks at the frequencies where we put them (nothing short of reassuring). The peaks all breach the confidence limits, so the test works as it should. 
+
+Note that the default value of sigma (0.05) would give an overly smooth spectrum, which is why we picked sigma=0.01. You may want to try this with different values of sigma, optimizing the bias-variance tradeoff by hand. You will find that there is no free lunch.  
+
+Now, what if we had established significance against an AR(1) model, as is common in climate science? Here we re-use the work of  [Meyers, (2012)](https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2012PA002307), adapted from [astrochron::mtm()](https://rdrr.io/cran/astrochron/man/mtm.html)
+
+```{r test against AR(1), message=FALSE, warning=FALSE}
+ar.out <- ar(x = yt, aic = F, order.max = 1) # fit AR(1) model
 rho = ar.out$ar  #extract lag-1 autocorrelation
 So = mean(pwr)
 Nyq <- 1/(2 * dt) # Nyquist frequency
@@ -116,7 +145,7 @@ names(ar.df)[3] <- "95% CL"
 names(ar.df)[4] <- "99% CL"
 ar.df = melt(ar.df,id = 1)  # reshape so plotting is easier
 #
-p <- ggplot() + geom_line(aes(x=1/spec.wwz$Frequency,y=spec.wwz$Power),colour="orange") + 
+p <- ggplot() + geom_line(aes(x=1/freq,y=pwr),colour="orange") + 
   theme_hc(base_size = 12, base_family = "sans", style = "darkunica", bgcolor = NULL) + 
   theme(axis.ticks.x = element_line(color = "gray")) + scale_y_log10(limits = c(10^m,10^M)) + 
   scale_x_continuous(breaks=period_ticks, minor_breaks = NULL, trans=reverselog10_trans(), limits = rev(period_range)) +
@@ -127,42 +156,13 @@ p <- plotSpectraAnnotate(p)
 show(p)
 ```
 
-We see four peaks at the frequencies where we put them (nothing short of reassuring) and a background with a 1/f slope. The peaks all breach the confidence limits, though you can see that the peak at 100 kyr is barely poking above the background. We'll explain this below.
+All peaks still breach the confidence limits, though you can see that the peak at 100 kyr is barely doing so. Why?
 
-Note that the default value of sigma (0.05) would give an overly smooth spectrum, which is why we picked sigma=0.01. You may want to try this with different values of sigma, basically optimizing the bias-variance tradeoff by hand. There is no free lunch.  
-
-Now let's use a more appropriate null hypothesis: a power law, which is what we put in. Again, we make shameless re-use of Stephen Meyer's excellent astrochron package. 
-
-```{r}
-#  power-law fit
-plaw.fit = astrochron::pwrLawFit(df.wwz, dof = 2, flow = f.low, fhigh = f.high, output = 1, genplot = F)
-
-pl.df <- data.frame(plaw.fit[,union(1,c(5:7))]) # extract confidence limits and pull into dataframe
-# rename columns to be less silly
-names(pl.df)[2] <- "90% CL"
-names(pl.df)[3] <- "95% CL"
-names(pl.df)[4] <- "99% CL"
-pl.df = melt(pl.df,id = 1)  # reshape so plotting is easier
-
-# now plot it
-p <- ggplot() + geom_line(aes(x=1/spec.wwz$Frequency,y=spec.wwz$Power),colour="orange") + 
-  theme_hc(base_size = 12, base_family = "sans", style = "darkunica", bgcolor = NULL) + 
-  theme(axis.ticks.x = element_line(color = "gray")) + scale_y_log10(limits = c(10^m,10^M)) + 
-  scale_x_continuous(breaks=period_ticks, minor_breaks = NULL, trans=reverselog10_trans(), limits = rev(period_range)) +
-  xlab("Period (kyr)") + ylab("Normalized Power") + ggtitle("Colored Milankovitch noise, WWZ, power-law null") +  
-  geom_line(data=pl.df,aes(x=1/Frequency,y=value,linetype=variable),colour="white")
-  
-p <- plotSpectraAnnotate(p)
-show(p)
-```
-Now all peaks poke 1 order of magnitude above the confidence limits, which makes more sense (that is, after all, how we designed this artificial example). Why was this not the case with the AR(1) null? That is because the spectrum of the AR(1) model is scaled to the mean spectral power, which in our case is dominated by the very lowest frequencies.  This unduly "upped the ante" for this significance test. 
+That is because the spectrum of the AR(1) model is scaled to the mean spectral power (So), which in our case is dominated by the very lowest frequencies.  This unduly "upped the ante" for this significance test. 
 
 Two points of note:
-1) Though some might say that a power-law test is more stringent at low-frequencies, we see that it was not the case here, because of the So scaling. 
 
-2) We see, once again, that coming up with an appropriate null is at least as important as carrying out the test properly. 
+1) One often hears that a power-law test is more stringent at low-frequencies, we see that it was not the case here, because of the So scaling. 
 
-
-Optional: label confidence limits at the end of lines: #https://stackoverflow.com/questions/29357612/plot-labels-at-ends-of-lines
-
+2) We see, once again, the critical importance of coming up with an appropriate null for every problem. There is no foolproof general recipe to detect "significant" peaks. There is no choice but to be very careful about how one defines the null hypothesis, often motivated by physical considerations.  
 
