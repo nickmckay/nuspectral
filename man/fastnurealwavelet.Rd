@@ -16,12 +16,12 @@ fastnurealwavelet(X, Y, omegamax, ncoeff, noctave, tmin, tmax, tsubdiv, sigma=0.
   \item{X}{ \code{X} is the ordered sequence of abscissa values. }
   \item{Y}{ \code{Y} is the sequence of corresponding ordinate values. }
   \item{omegamax}{ \code{omegamax} is the top circular frequency for which the spectrum is to be computed. }
-  \item{ncoeff}  { \code{ncoeff} is the number of coefficients evenly distributed per octave to be calculated. }
-  \item{noctave} { \code{noctave} is the number of octaves to be calculated. } 
-  \item{tmin}    { \code{tmin} is the minimum translation value for which wavelet coefficients are to be calculated. } 
-  \item{tmax}    { \code{tmax} is the maximum translation value for which wavelet coefficients are to be calculated. } 
-  \item{tsubdiv} { \code{tsubdiv} specifies the number of translation values for which wavelet coefficients are to be calculated. } 
-  \item{sigma}   { \code{sigma} specifies the length of the wavelet support, i.e. the time/frequency tradeoff; the default value of 0.1
+  \item{ncoeff}{ \code{ncoeff} is the number of coefficients evenly distributed per octave to be calculated. }
+  \item{noctave}{ \code{noctave} is the number of octaves to be calculated. } 
+  \item{tmin}{ \code{tmin} is the minimum translation value for which wavelet coefficients are to be calculated. } 
+  \item{tmax}{ \code{tmax} is the maximum translation value for which wavelet coefficients are to be calculated. } 
+  \item{tsubdiv}{ \code{tsubdiv} specifies the number of translation values for which wavelet coefficients are to be calculated. } 
+  \item{sigma}{ \code{sigma} specifies the length of the wavelet support, i.e. the time/frequency tradeoff; the default value of 0.1
                    means that 10 periods of exp(i t) fit into the wavelet window, smaller values increase the window size }
   }
 \value{An array of spectral coefficients in complex representation.}
