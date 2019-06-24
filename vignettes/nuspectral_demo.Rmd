@@ -75,7 +75,7 @@ reverselog10_trans <- function(){
   trans <- function(x) -log(x, 10)
   inv <- function(x) 10^(-x)
   return(scales::trans_new("reverselog10-", trans, inv, 
-            log_breaks(base = 10), 
+            scales::log_breaks(base = 10), 
             domain = c(1e-100, Inf)))
 }
 plotSpectraAnnotate = function (p, periods = c(19,23,41,100)){
@@ -91,7 +91,7 @@ return(p)
 }
 ```
 
-Since the process was defined as fractal (1/f) noise + some harmonics, a natural choice for the detection of harmonics would be to test against a power-law spectrum; in general, the spectral exponent (here, alpha = 1) is not known, so one would have to estimate it from the data. For this, we can re-use Stephen Meyer's excellent [astrochron](https://www.rdocumentation.org/packages/astrochron) package. 
+Since the process was defined as fractal (1/f) noise + some harmonics, a natural choice for the detection of harmonics would be to test against a power-law spectrum; in general, the spectral exponent (here, alpha = 1) is not known, so one would have to estimate it from the data. For this, we can re-use Stephen Meyers' excellent [astrochron](https://www.rdocumentation.org/packages/astrochron) package. 
 
 ```{r test again power law, message=FALSE, warning=FALSE}
 plaw.fit = astrochron::pwrLawFit(df.wwz, dof = 2, flow = f.low, fhigh = f.high, output = 1, genplot = F)
