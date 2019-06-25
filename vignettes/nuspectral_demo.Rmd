@@ -10,7 +10,8 @@ To generate it, we use the method of [Kirchner (2005)](https://journals.aps.org/
 ```{r load packages and generate synthetic data, message=FALSE, warning=FALSE}
 library(ggplot2)
 library(ggthemes)
-#library(nuspectral)
+library(nuspectral)
+library(geoChronR)
 library(astrochron)
 library(scales)
 library(reshape2) # for melt
@@ -48,9 +49,9 @@ ggplot() + geom_line(aes(x=time,y=yt),colour="orange") + ggtitle("Colored Milank
 Now let's use the nuspectral, wavelet-based method to estimate the spectrum. To save time, we load a pre-computed version, but the first two lines show how one would evaluate this spectrum using the nuspectral package. 
 
 ```{r spectral estimation}
-#tau = seq(min(time),max(time),length = max(nt %/% 2,5))
-#spec.wwz = nuspectral:::nuwavelet_psd(time,yt,sigma=0.01,taus = tau)
-load('spec.wwz.Rdata')   # load this to speed things up; TOGGLE for real example
+tau = seq(min(time),max(time),length = max(nt %/% 2,5))
+spec.wwz = nuspectral:::nuwavelet_psd(time,yt,sigma=0.01,taus = tau)
+#load('spec.wwz.Rdata')   # load this to speed things up; 
 period_range =  c(10, 1000)  # define range for estimation of spectral exponent
 freq = spec.wwz$Frequency
 pwr = spec.wwz$Power
@@ -78,17 +79,6 @@ reverselog10_trans <- function(){
             scales::log_breaks(base = 10), 
             domain = c(1e-100, Inf)))
 }
-plotSpectraAnnotate = function (p, periods = c(19,23,41,100)){
-  #get the x- and y-axis ranges actually used in the graph
-  ggp <- ggplot_build(p)
-  ylims <- ggp$layout$panel_params[[1]]$y.range # this will break with multiplots... 
-  for(per in periods){
-    p <- p + annotate("segment", x = per, xend = per, y = 10**(ylims[1]-1), yend = 10**ylims[2],
-    colour = "red", alpha = 0.5)
-    p <- p +  annotate("text", x = 1.03*per, y = 2*10**ylims[2], label = format(per,digits=2, nsmall=0), colour = "red")
-  }
-return(p)  
-}
 ```
 
 Since the process was defined as fractal (1/f) noise + some harmonics, a natural choice for the detection of harmonics would be to test against a power-law spectrum; in general, the spectral exponent (here, alpha = 1) is not known, so one would have to estimate it from the data. For this, we can re-use Stephen Meyers' excellent [astrochron](https://www.rdocumentation.org/packages/astrochron) package. 
@@ -114,7 +104,7 @@ p <- ggplot() + geom_line(aes(x=1/spec.wwz$Frequency,y=spec.wwz$Power),colour="o
   xlab("Period (kyr)") + ylab("Normalized Power") + ggtitle("Colored Milankovitch noise, WWZ, power-law null") +  
   geom_line(data=pl.df,aes(x=1/Frequency,y=value,linetype=variable),colour="white")
   
-p <- plotSpectraAnnotate(p)
+p <- geoChronR::Anno(p)
 show(p)
 ```
 

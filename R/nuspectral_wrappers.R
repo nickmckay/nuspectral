@@ -105,8 +105,8 @@ nuwavelet_psd = function(time, vals, freqs=NA, taus=NA, wgtrad=1, sigma=0.05){
   sum_power = colSums(power * Neff_diff, na.rm = TRUE)
   sum_eff = colSums(Neff_diff, na.rm = TRUE)
   psd  <- sum_power / sum_eff
-  
-  out = list(Power = psd, Frequency = freqs)
+  nf = length(freqs)
+  out = list(Power = psd[2:nf], Frequency = freqs[2:nf]) #export, leaving out zero frequency
   return(out)
 }
 
