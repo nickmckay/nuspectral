@@ -46,7 +46,7 @@ nuwavelet = function(time, vals, freqs, taus, wgt=cubicwgt, wgtrad=1, sigma=0.05
   sclgrm = matrix(nrow = nt, ncol = nf)
   Neffs  = matrix(nrow = nt, ncol = nf)
 
-  pb = txtProgressBar(min=1,max = nt,style = 3)
+  #pb = txtProgressBar(min=1,max = nt,style = 3)
   for(i in 1:nt){
     t_shifted = time-taus[i]
     for(j in 1:nf){
@@ -56,9 +56,9 @@ nuwavelet = function(time, vals, freqs, taus, wgt=cubicwgt, wgtrad=1, sigma=0.05
       s = sum(weight)
       Neffs[i, j] = s^2 / sum(weight^2)
     }
-    if(i%%round(nt/10)==0){
-      setTxtProgressBar(pb,i)
-    }
+    #if(i%%round(nt/10)==0){
+    #  setTxtProgressBar(pb,i)
+    #}
   }
   # allocate output
   out = list(sclgrm = sclgrm, Neffs = Neffs)
@@ -70,7 +70,7 @@ nuwavelet = function(time, vals, freqs, taus, wgt=cubicwgt, wgtrad=1, sigma=0.05
 #' @title nuwavelet_psd
 #' @description Power spectral density derived from a `nuspectral` scalogram (nuwavelet)
 #' @param time vector of time points
-#' @param vals vector of values vals = y(time)
+#' @param vals vector of values f(time)
 #' @param freqs vector of analysis frequencies
 #' @param taus  vector of analysis time shifts
 #' @param wgt  weight function for the wavelet
@@ -81,14 +81,14 @@ nuwavelet = function(time, vals, freqs, taus, wgt=cubicwgt, wgtrad=1, sigma=0.05
 #' @references Foster, G. (1996), Wavelets for period analysis of unevenly sampled time series, Astron. Jour., 112, 1709, doi:10.1086/118137. 
 #' @references Kirchner, J. W. & Neal, C. (2013), Universal fractal scaling in stream chemistry and its implications for solute transport and water quality trend detection. PNAS 110, 12213–12218.
 
-nuwavelet_psd = function(time, vals, freqs=NA, taus=NA, wgtrad=1, sigma=0.05){
+nuwavelet_psd = function(time, vals, freqs=NULL, taus=NULL, wgtrad=1, sigma=0.05){
 
   nt = length(time)
   
-  if(all(is.na(freqs))){
+  if(is.null(freqs)){
     freqs = freq_axis(time)
   }
-  if(all(is.na(taus))){
+  if(is.null(taus)){
     taus = seq(min(time),max(time),length = max(nt %/% 10,5))
   }
   
