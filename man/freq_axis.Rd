@@ -16,6 +16,6 @@ freqs vector of analysis frequencies
 Define frequency axis corresponding to time axis t
 }
 \seealso{
-Other spectra: \code{\link{nuwavelet}}
+Other spectra: \code{\link{nupsd}},
+  \code{\link{nuwavelet_psd}}, \code{\link{nuwavelet}}
 }
-\concept{spectra}
