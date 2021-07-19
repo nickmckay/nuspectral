@@ -4,8 +4,7 @@
 \alias{nuwavelet_psd}
 \title{nuwavelet_psd}
 \usage{
-nuwavelet_psd(time, vals, freqs = NULL, taus = NULL, wgtrad = 1,
-  sigma = 0.05)
+nuwavelet_psd(time, vals, freqs = NULL, taus = NULL, wgtrad = 1, sigma = 0.05)
 }
 \arguments{
 \item{time}{vector of time points}
@@ -26,7 +25,10 @@ nuwavelet_psd(time, vals, freqs = NULL, taus = NULL, wgtrad = 1,
 psd
 }
 \description{
-Power spectral density derived from a `nuspectral` scalogram (nuwavelet)
+Power spectral density derived from a nuspectral scalogram (nuwavelet)
+}
+\details{
+nuwavelet psd
 }
 \references{
 Matthias et al, (2004), Algorithms for Spectral Analysis of Irregularly Sampled Time Series, J. Stat. Soft.
@@ -36,6 +38,9 @@ Foster, G. (1996), Wavelets for period analysis of unevenly sampled time series,
 Kirchner, J. W. & Neal, C. (2013), Universal fractal scaling in stream chemistry and its implications for solute transport and water quality trend detection. PNAS 110, 12213–12218.
 }
 \seealso{
-Other spectra: \code{\link{freq_axis}},
-  \code{\link{nupsd}}, \code{\link{nuwavelet}}
+Other spectra: 
+\code{\link{freq_axis}()},
+\code{\link{nupsd}()},
+\code{\link{nuwavelet}()}
 }
+\concept{spectra}

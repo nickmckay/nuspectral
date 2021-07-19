@@ -1,5 +1,5 @@
-#' @useDynLib nuspectral fastnucomplex
-"fastnucomplex" <-
+#' @export
+fastnucomplex <-
 function(X, Y, omegamax, ncoeff, noctave)
  .C("fastnucomplex",
     as.double(X),

@@ -1,4 +1,4 @@
-#'@useDynLib nuspectral "fastnurealwavelet"
+#'@export
 "fastnurealwavelet" <-
 function(X, Y, omegamax, ncoeff, noctave, tmin, tmax, tsubdiv, sigma=0.1){
  .C("fastnurealwavelet",

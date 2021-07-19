@@ -4,8 +4,7 @@
 \alias{nuwavelet}
 \title{Scalogram}
 \usage{
-nuwavelet(time, vals, freqs, taus, wgt = cubicwgt, wgtrad = 1,
-  sigma = 0.05)
+nuwavelet(time, vals, freqs, taus, wgt = cubicwgt, wgtrad = 1, sigma = 0.05)
 }
 \arguments{
 \item{time}{vector of time points}
@@ -32,12 +31,18 @@ a list of ensemble spectra results
 \description{
 Wrapper for the R function `nuwaveletcoeff`
 }
+\details{
+Nuwavelet
+}
 \references{
 Matthias et al, (2004), Algorithms for Spectral Analysis of Irregularly Sampled Time Series, J. Stat. Soft.
 
 Foster, G. (1996), Wavelets for period analysis of unevenly sampled time series, Astron. Jour., 112, 1709, doi:10.1086/118137.
 }
 \seealso{
-Other spectra: \code{\link{freq_axis}},
-  \code{\link{nupsd}}, \code{\link{nuwavelet_psd}}
+Other spectra: 
+\code{\link{freq_axis}()},
+\code{\link{nupsd}()},
+\code{\link{nuwavelet_psd}()}
 }
+\concept{spectra}

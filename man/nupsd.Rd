@@ -19,10 +19,16 @@ psd
 \description{
 Lomb-Scargle periodogram derived from the `nuspectral` nurealcoeff routine
 }
+\details{
+Nupsd
+}
 \references{
 Matthias et al, (2004), Algorithms for Spectral Analysis of Irregularly Sampled Time Series, J. Stat. Soft.
 }
 \seealso{
-Other spectra: \code{\link{freq_axis}},
-  \code{\link{nuwavelet_psd}}, \code{\link{nuwavelet}}
+Other spectra: 
+\code{\link{freq_axis}()},
+\code{\link{nuwavelet_psd}()},
+\code{\link{nuwavelet}()}
 }
+\concept{spectra}

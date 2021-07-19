@@ -1,4 +1,4 @@
-#' @useDynLib nuspectral nureal
+#' @export
 nureal <-
 function(X, Y, omegamax, ncoeff, noctave)
  .C("nureal",

@@ -9,4 +9,4 @@ Maintainer: <mjg@caltech.edu>
 License: LGPL
 NeedsCompilation: yes
 Packaged: 2018-03-15 03:03:03 UTC; mjg
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.1

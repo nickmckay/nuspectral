@@ -1,11 +1,10 @@
-#' @export
+#' Freq axis
 #' @family spectra
-#' @title frequency axis
 #' @description Define frequency axis corresponding to time axis t 
 #' @param t vector of time points
 #' @return freqs vector of analysis frequencies
-
-freq_axis = function(t){
+#' @export
+freq_axis  <- function(t){
   nt <- length(t)
   dt <- median(diff(t))
   fs <- 1 / dt
@@ -14,6 +13,7 @@ freq_axis = function(t){
   return(freqs)
 }
 
+#' Nuwavelet
 #' @export
 #' @family spectra
 #' @title Scalogram
@@ -32,7 +32,6 @@ freq_axis = function(t){
 #' }    
 #' @references Matthias et al, (2004), Algorithms for Spectral Analysis of Irregularly Sampled Time Series, J. Stat. Soft.
 #' @references Foster, G. (1996), Wavelets for period analysis of unevenly sampled time series, Astron. Jour., 112, 1709, doi:10.1086/118137. 
-
 nuwavelet = function(time, vals, freqs, taus, wgt=cubicwgt, wgtrad=1, sigma=0.05){
   
   if(length(time) != length(vals)){stop("time and values must have the same number of rows (observations)")}
@@ -65,10 +64,11 @@ nuwavelet = function(time, vals, freqs, taus, wgt=cubicwgt, wgtrad=1, sigma=0.05
   return(out)
 }
 
-#' @export
+
+#' nuwavelet psd
 #' @family spectra
 #' @title nuwavelet_psd
-#' @description Power spectral density derived from a `nuspectral` scalogram (nuwavelet)
+#' @description Power spectral density derived from a nuspectral scalogram (nuwavelet)
 #' @param time vector of time points
 #' @param vals vector of values f(time)
 #' @param freqs vector of analysis frequencies
@@ -80,7 +80,7 @@ nuwavelet = function(time, vals, freqs, taus, wgt=cubicwgt, wgtrad=1, sigma=0.05
 #' @references Matthias et al, (2004), Algorithms for Spectral Analysis of Irregularly Sampled Time Series, J. Stat. Soft.
 #' @references Foster, G. (1996), Wavelets for period analysis of unevenly sampled time series, Astron. Jour., 112, 1709, doi:10.1086/118137. 
 #' @references Kirchner, J. W. & Neal, C. (2013), Universal fractal scaling in stream chemistry and its implications for solute transport and water quality trend detection. PNAS 110, 12213–12218.
-
+#' @export
 nuwavelet_psd = function(time, vals, freqs=NULL, taus=NULL, wgtrad=1, sigma=0.05){
 
   nt = length(time)
@@ -112,6 +112,7 @@ nuwavelet_psd = function(time, vals, freqs=NULL, taus=NULL, wgtrad=1, sigma=0.05
 
 
 
+#' Nupsd
 #' @export
 #' @family spectra
 #' @title nupsd 
@@ -129,7 +130,7 @@ nupsd = function(time, vals, freqs=NA){
   nf = length(freqs)
   psd = vector(0,length=nf)
   for(i in 1:nf){ 
-    psd[i] = abs(nuspectral::nurealcoeff(time, vals, 2*pi*fq))**2*np.size(time)/2
+    psd[i] = abs(nuspectral::nurealcoeff(time, vals, 2*pi*fq))*2*np.size(time)/2
   }
   return(psd)
 }
